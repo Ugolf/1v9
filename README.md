@@ -5,4 +5,4 @@
 - sound effect
 
 
-![Alt text](/ss1.png?raw=true "Main window")
+
