@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.ActionMapUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,7 +62,7 @@ public class Gui extends JFrame{
     */
 
     public Gui(){
-        super("jeden z dziewięciu v.0.11");
+        super("jeden z dziewięciu v.0.12");
         setContentPane(rootPanel);
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -76,7 +77,6 @@ public class Gui extends JFrame{
         file.setMnemonic(KeyEvent.VK_F);
 
         JMenuItem eMenuItem = new JMenuItem("Wyjscie", icon);
-        eMenuItem.setMnemonic(KeyEvent.VK_E);
         eMenuItem.setToolTipText("Exit application");
         eMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -85,7 +85,8 @@ public class Gui extends JFrame{
             }
         });
 
-        JMenuItem loadMenuItem = new JMenuItem("Wczytaj pytania", icon);
+        final JMenuItem loadMenuItem = new JMenuItem("Wczytaj pytania", icon);
+        loadMenuItem.setMnemonic(KeyEvent.VK_W);
         loadMenuItem.setToolTipText("Wczytuje pytania z wybranego pliku");
         loadMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -121,8 +122,11 @@ public class Gui extends JFrame{
         helpMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(rootPanel, "Plik tekstowy nalezy wczesniej przygotować. Jedna linia - jedno pytanie wraz z odpowiedzią " +
-                        "oddzielone znakiem ' ? ' ", "Pomoc", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(rootPanel, "Plik .txt: pytanie ? odpowiedz\n" +
+                        "CTRL + S - Losuj pytanie\n" +
+                        "CTRL + D - Odejmij punkt\n" +
+                        "CTRL + F - Dodaj punkt\n" +
+                        "CTRL + W - Wczytaj plik\n", "Pomoc", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -135,8 +139,8 @@ public class Gui extends JFrame{
                         "<h1>Jeden z dziewięciu!</h1>" +
                                 "<p>Napisał i pisze <i>Matik</i> <br>" +
                                 " Java + swing <br>" +
-                                " 02.01.2015 <br>" +
-                                " Wersja 0.11 <br><br>" +
+                                " 07.02.2015 <br>" +
+                                " Wersja 0.12 <br><br>" +
                                 "<p>...</p>";
                 String s = pt1 + pt2;
                 JOptionPane.showMessageDialog(rootPanel,
@@ -151,9 +155,9 @@ public class Gui extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 String bug = "<html><body width='250'>" +
-                        " - skroty klawiszowe <br>" +
                         " - 'zatwierdzam' <br>" +
-                        " - layout";
+                        " - layout <br>" +
+                        " - pytania o konrketną liczbę <br>";
                 JOptionPane.showMessageDialog(rootPanel,
                         bug,
                         "Błędy",
@@ -190,6 +194,15 @@ public class Gui extends JFrame{
         headerLabel = new JLabel(new ImageIcon(header));
         add(headerLabel);
 
+        /*
+        Czionki
+         */
+        Font questionFont = new Font("Sans", Font.PLAIN, 20);
+        Font answerFont = new Font("Sans", Font.PLAIN, 16);
+        Font correctFont = new Font("Sans", Font.PLAIN, 16);
+        questionArea.setFont(questionFont);
+        answerField.setFont(answerFont);
+        correctField.setFont(correctFont);
 
         rootPanel.setBorder(new EmptyBorder(10,10,10,10));
         setResizable(false);
@@ -216,6 +229,55 @@ public class Gui extends JFrame{
             }
         });
   */
+
+
+        /*
+        Keybindings
+         */
+        ActionMap actionMap = new ActionMapUIResource();
+        actionMap.put("action_rand", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                randButton.doClick();
+             //   System.out.println("Rand question");
+            }
+        });
+        actionMap.put("action_increase", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                increaseButton.doClick();
+               // System.out.println("Increase point");
+            }
+        });
+        actionMap.put("action_decrease", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                decreaseButton.doClick();
+               //System.out.println("Decrease point");
+            }
+        });
+        actionMap.put("load_file", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadMenuItem.doClick();
+                //System.out.println("Decrease point");
+            }
+        });
+
+        InputMap keyMap = new ComponentInputMap(rootPanel);
+        keyMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F,
+                java.awt.Event.CTRL_MASK), "action_increase");
+        keyMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S,
+                java.awt.Event.CTRL_MASK), "action_rand");
+        keyMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D,
+                java.awt.Event.CTRL_MASK), "action_decrease");
+        keyMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W,
+                java.awt.Event.CTRL_MASK), "load_file");
+        SwingUtilities.replaceUIActionMap(rootPanel, actionMap);
+        SwingUtilities.replaceUIInputMap(rootPanel, JComponent.WHEN_IN_FOCUSED_WINDOW,
+                keyMap);
+        // *****************************************************
+
         countGood.setText(String.valueOf(good));
         countWrong.setText(String.valueOf(wrong));
         countAll.setText(String.valueOf(all));
@@ -246,10 +308,9 @@ public class Gui extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 String odp ="";
-                if(answerField.getText().isEmpty()== false){
+                if(answerField.getText().isEmpty() == false){
                     if(questions.get(n).contains("wiek") || questions.get(n).contains("rok") || answerField.getText().length() < tolerance){
                         odp = answerField.getText().substring(0, answerField.getText().length());
-
 
                         if((answers.get(n).toUpperCase()).contains(odp.toUpperCase())==true){
                             System.out.println("ODP: "+odp);
@@ -260,7 +321,7 @@ public class Gui extends JFrame{
                             correctLabel.setText("Dobrze!");
 
                             m = rand.nextInt(soundsGood.length);
-                            System.out.println("dźwięk = "+m);
+                            //System.out.println("dźwięk = "+m);
                             String gongFile = soundsGood[m];
                             InputStream in = null;
                             try {
@@ -284,7 +345,7 @@ public class Gui extends JFrame{
                             correctLabel.setText("Źle!");
 
                             m = rand.nextInt(soundsWrong.length);
-                            System.out.println("dźwięk = "+m);
+                           // System.out.println("dźwięk = "+m);
                             String gongFile = soundsWrong[m];
                             InputStream in = null;
                             try {
@@ -305,8 +366,6 @@ public class Gui extends JFrame{
 
                     }else {
                         odp = answerField.getText().substring(0, answerField.getText().length() - tolerance);
-
-
                         if((answers.get(n).toUpperCase()).contains(odp.toUpperCase())==true){
                             System.out.println("ODP: "+odp);
                             good++;
@@ -316,7 +375,7 @@ public class Gui extends JFrame{
                             correctLabel.setText("Dobrze!");
 
                             m = rand.nextInt(soundsGood.length);
-                            System.out.println("dźwięk = "+m);
+                            //System.out.println("dźwięk = "+m);
                             String gongFile = soundsGood[m];
                             InputStream in = null;
                             try {
@@ -340,7 +399,7 @@ public class Gui extends JFrame{
                             correctLabel.setText("Źle!");
 
                             m = rand.nextInt(soundsWrong.length);
-                            System.out.println("dźwięk = "+m);
+                            //System.out.println("dźwięk = "+m);
                             String gongFile = soundsWrong[m];
                             InputStream in = null;
                             try {
@@ -358,8 +417,11 @@ public class Gui extends JFrame{
                             //badPlayer.play();
                         }
                     }
-
-
+                }
+                if(answerField.getText().isEmpty() == true){
+                    wrong++;all++;
+                    countWrong.setText("" + wrong);
+                    countAll.setText("" + all);
                 }
                 correctField.setText(answers.get(n));
                 System.out.println(odp.toUpperCase()+" "+answers.get(n).toUpperCase());
@@ -451,5 +513,12 @@ public class Gui extends JFrame{
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
+    }
+
+    public static void centreWindow(Window frame) {
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+        frame.setLocation(x, y);
     }
 }

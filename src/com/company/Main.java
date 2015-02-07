@@ -9,6 +9,7 @@ public class Main {
             @Override
             public void run() {
                 Gui myGui = new Gui();
+                myGui.centreWindow(myGui);
                 myGui.setVisible(true);
             }
         });
