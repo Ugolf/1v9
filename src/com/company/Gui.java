@@ -15,6 +15,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -84,6 +86,8 @@ public class Gui extends JFrame{
                 System.exit(0);
             }
         });
+        //domyslnie
+        readFile("baza-pytań.txt");
 
         final JMenuItem loadMenuItem = new JMenuItem("Wczytaj pytania", icon);
         loadMenuItem.setMnemonic(KeyEvent.VK_W);
@@ -139,7 +143,7 @@ public class Gui extends JFrame{
                         "<h1>Jeden z dziewięciu!</h1>" +
                                 "<p>Napisał i pisze <i>Matik</i> <br>" +
                                 " Java + swing <br>" +
-                                " 07.02.2015 <br>" +
+                                " 08.02.2015 <br>" +
                                 " Wersja 0.12 <br><br>" +
                                 "<p>...</p>";
                 String s = pt1 + pt2;
@@ -197,7 +201,7 @@ public class Gui extends JFrame{
         /*
         Czionki
          */
-        Font questionFont = new Font("Sans", Font.PLAIN, 20);
+        Font questionFont = new Font("Sans", Font.PLAIN, 18);
         Font answerFont = new Font("Sans", Font.PLAIN, 16);
         Font correctFont = new Font("Sans", Font.PLAIN, 16);
         questionArea.setFont(questionFont);
@@ -229,7 +233,6 @@ public class Gui extends JFrame{
             }
         });
   */
-
 
         /*
         Keybindings
@@ -316,8 +319,7 @@ public class Gui extends JFrame{
                             System.out.println("ODP: "+odp);
                             good++;
                             all++;
-                            countGood.setText("" + good);
-                            countAll.setText("" + all);
+                            updateValue(good, wrong, all);
                             correctLabel.setText("Dobrze!");
 
                             m = rand.nextInt(soundsGood.length);
@@ -340,8 +342,7 @@ public class Gui extends JFrame{
                         } else {
                             wrong++;
                             all++;
-                            countWrong.setText("" + wrong);
-                            countAll.setText("" + all);
+                            updateValue(good,wrong,all);
                             correctLabel.setText("Źle!");
 
                             m = rand.nextInt(soundsWrong.length);
@@ -370,8 +371,7 @@ public class Gui extends JFrame{
                             System.out.println("ODP: "+odp);
                             good++;
                             all++;
-                            countGood.setText("" + good);
-                            countAll.setText("" + all);
+                            updateValue(good,wrong,all);
                             correctLabel.setText("Dobrze!");
 
                             m = rand.nextInt(soundsGood.length);
@@ -394,8 +394,7 @@ public class Gui extends JFrame{
                         } else {
                             wrong++;
                             all++;
-                            countWrong.setText("" + wrong);
-                            countAll.setText("" + all);
+                            updateValue(good,wrong,all);
                             correctLabel.setText("Źle!");
 
                             m = rand.nextInt(soundsWrong.length);
@@ -420,8 +419,7 @@ public class Gui extends JFrame{
                 }
                 if(answerField.getText().isEmpty() == true){
                     wrong++;all++;
-                    countWrong.setText("" + wrong);
-                    countAll.setText("" + all);
+                    updateValue(good,wrong,all);
                 }
                 correctField.setText(answers.get(n));
                 System.out.println(odp.toUpperCase()+" "+answers.get(n).toUpperCase());
@@ -431,20 +429,16 @@ public class Gui extends JFrame{
         increaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                good++;
-                wrong--;
-                countGood.setText(""+good);
-                countWrong.setText(""+wrong);
+                good++; wrong--;
+                updateValue(good,wrong,all);
             }
         });
 
         decreaseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                good--;
-                wrong++;
-                countGood.setText(""+good);
-                countWrong.setText(""+wrong);
+                good--; wrong++;
+                updateValue(good,wrong,all);
             }
         });
 
@@ -463,6 +457,13 @@ public class Gui extends JFrame{
             public void keyReleased(KeyEvent e) {}
         });
     }
+
+    void updateValue(int g, int w, int a){
+        countAll.setText(""+a);
+        countGood.setText(""+g+"            "+ round(((float) g / (float) a)*100,1) +" %");
+        countWrong.setText(""+w+"            "+ round(((float) w / (float) a)*100,1) +" %");
+    }
+
 
     void insertBase(String line){
         String[] elements = line.split("\\? ");
@@ -520,5 +521,13 @@ public class Gui extends JFrame{
         int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
         frame.setLocation(x, y);
+    }
+
+    public static double round(float value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }
