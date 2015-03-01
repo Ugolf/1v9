@@ -71,6 +71,9 @@ public class Gui extends JFrame{
         setSize(600,500);
         //questionArea.setLineWrap(true);
 
+        //domyslnie
+        readFile("baza.txt");
+
         JMenuBar menubar = new JMenuBar();
         ImageIcon icon = new ImageIcon("exit.png");
 
@@ -86,8 +89,7 @@ public class Gui extends JFrame{
                 System.exit(0);
             }
         });
-        //domyslnie
-        readFile("baza-pytań.txt");
+
 
         final JMenuItem loadMenuItem = new JMenuItem("Wczytaj pytania", icon);
         loadMenuItem.setMnemonic(KeyEvent.VK_W);
@@ -321,47 +323,13 @@ public class Gui extends JFrame{
                             all++;
                             updateValue(good, wrong, all);
                             correctLabel.setText("Dobrze!");
-
-                            m = rand.nextInt(soundsGood.length);
-                            //System.out.println("dźwięk = "+m);
-                            String gongFile = soundsGood[m];
-                            InputStream in = null;
-                            try {
-                                in = new FileInputStream(gongFile);
-                            } catch (FileNotFoundException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioStream audioStream = null;
-                            try {
-                                audioStream = new AudioStream(in);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioPlayer.player.start(audioStream);
-                            //goodPlayer.play();
+                            playSound(1);
                         } else {
                             wrong++;
                             all++;
                             updateValue(good,wrong,all);
                             correctLabel.setText("Źle!");
-
-                            m = rand.nextInt(soundsWrong.length);
-                           // System.out.println("dźwięk = "+m);
-                            String gongFile = soundsWrong[m];
-                            InputStream in = null;
-                            try {
-                                in = new FileInputStream(gongFile);
-                            } catch (FileNotFoundException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioStream audioStream = null;
-                            try {
-                                audioStream = new AudioStream(in);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioPlayer.player.start(audioStream);
-                            //badPlayer.play();
+                            playSound(0);
                         }
 
 
@@ -373,53 +341,20 @@ public class Gui extends JFrame{
                             all++;
                             updateValue(good,wrong,all);
                             correctLabel.setText("Dobrze!");
-
-                            m = rand.nextInt(soundsGood.length);
-                            //System.out.println("dźwięk = "+m);
-                            String gongFile = soundsGood[m];
-                            InputStream in = null;
-                            try {
-                                in = new FileInputStream(gongFile);
-                            } catch (FileNotFoundException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioStream audioStream = null;
-                            try {
-                                audioStream = new AudioStream(in);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioPlayer.player.start(audioStream);
-                            //goodPlayer.play();
+                            playSound(1);
                         } else {
                             wrong++;
                             all++;
                             updateValue(good,wrong,all);
                             correctLabel.setText("Źle!");
-
-                            m = rand.nextInt(soundsWrong.length);
-                            //System.out.println("dźwięk = "+m);
-                            String gongFile = soundsWrong[m];
-                            InputStream in = null;
-                            try {
-                                in = new FileInputStream(gongFile);
-                            } catch (FileNotFoundException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioStream audioStream = null;
-                            try {
-                                audioStream = new AudioStream(in);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            AudioPlayer.player.start(audioStream);
-                            //badPlayer.play();
+                            playSound(0);
                         }
                     }
                 }
                 if(answerField.getText().isEmpty() == true){
                     wrong++;all++;
                     updateValue(good,wrong,all);
+                    playSound(0);
                 }
                 correctField.setText(answers.get(n));
                 System.out.println(odp.toUpperCase()+" "+answers.get(n).toUpperCase());
@@ -511,6 +446,30 @@ public class Gui extends JFrame{
         //System.out.println(answers);
         //System.out.println(answers.size());
     }
+
+    public void playSound(int x){
+        m = rand.nextInt(soundsWrong.length);
+        String gongFile;
+        if (x==0){
+            gongFile = soundsWrong[m];
+        } else{
+            gongFile = soundsGood[m];
+        }
+        InputStream in = null;
+        try {
+            in = new FileInputStream(gongFile);
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        AudioStream audioStream = null;
+        try {
+            audioStream = new AudioStream(in);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        AudioPlayer.player.start(audioStream);
+    }
+
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
